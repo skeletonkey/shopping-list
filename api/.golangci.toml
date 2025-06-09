@@ -1,0 +1,43 @@
+# lib-instance-gen-go: File auto generated -- DO NOT EDIT!!!
+[output]
+formats = [
+    { format = "colored-line-number", path = "stdout" }
+]
+
+[linters]
+enable = [
+    # Visit https://golangci-lint.run/usage/linters/
+    # for the full, current list of available linters.
+
+    # Default linters
+    "errcheck", # Detect unchecked errors
+    "gosimple", # Suggest code simplifications
+    "govet", # Reports suspicious constructs
+    "ineffassign", # Detects unused variable assignments
+    "staticcheck", # go vet on steroids
+    "unused", # Detect unused constants, variables, functions and types
+
+    # Additional linters
+    "asciicheck", # Detect if code identifiers does not contain non-ASCII characters
+    "bidichk", # Detects strings that are not valid UTF-8
+    "bodyclose", # Check whether HTTP response bodies are closed
+    "gocheckcompilerdirectives", # Check for compiler directives are valid
+    "goconst", # Detect repeated values that can be made constants
+    "gocritic", # Go source code linter that maintains checks from the Go Code Review Comments
+    "gocyclo", # or "cyclop", # Detect cyclomatic complexity
+    "goimports", # Ensure standard import formatting/ordering
+    "gosec", # Inspects source code for security problems
+    "misspell", # Fix spelling errors
+    "nakedret", # Detect naked returns
+    "perfsprint", # Detects inefficient fmt.Sprintf
+    "prealloc", # Detect slice declarations that could potentially be preallocated
+    "predeclared", # Detects shadowing of predeclared identifiers
+    "tparallel", # Detects inappropriate use of t.Parallel()
+    "typecheck", # Standard Go type checks
+    "unconvert", # Detect unnecessary type conversions
+    "unparam", # Detect unused function parameters
+    "whitespace", # check for unwanted newlines
+]
+
+[issues]
+exclude-use-default = false

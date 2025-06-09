@@ -1,0 +1,4 @@
+github.com/skeletonkey/lib-core-go v0.3.0 h1:J0AhUnY4JO/xNBW4tKAOXajDb3fFmfn68Y+1179HlCc=
+github.com/skeletonkey/lib-core-go v0.3.0/go.mod h1:23k+p6qnyjHORqVd0g1aNu6IV0dMAYnP7HESXEat23M=
+github.com/skeletonkey/lib-instance-gen-go v0.8.0 h1:1WZ2e/BzOq6fyHnXp+BnPUR1wBSCVRCcdDi45hzuioE=
+github.com/skeletonkey/lib-instance-gen-go v0.8.0/go.mod h1:HyWA5y9XBd5Zgrt435cbhWZ2iIlmTaLXCbBcQwwlgf4=

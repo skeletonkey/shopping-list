@@ -26,9 +26,9 @@ There is also an override time configuration which will break the file lock. Thi
 
 It is the user's responsibility to understand these settings, their implications, and set them to their tolerances for potential data lose:
 
-- timeBetweenCacheWrites (seconds)
-- dataFileLockAlerts (seconds) - 0 meaning no alerts will be provided
-- dataFileLockOverride (seconds) - 0 meaning lock will never be broken
+- time_between_writes (seconds)
+- data_file_lock_alert_threshold (seconds) - 0 meaning no alerts will be provided
+- data_file_lock_override_threshold (seconds) - 0 meaning lock will never be broken
 
 The service will not start if the file is locked.
 

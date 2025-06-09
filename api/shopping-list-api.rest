@@ -1,0 +1,151 @@
+### Shopping List API Test File
+### For use with humao.rest-client VSCode extension
+### Make sure the server is running: PROJECT_CONFIG_FILE=config/dev.json ./bin/api
+
+@baseUrl = http://localhost:8080/api/v1
+@familyName = Tank
+
+### 1. Get all lists for a family (should be empty initially)
+GET {{baseUrl}}/{{familyName}}
+
+### 2. Create a new list for the family
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "name": "grocery",
+    "display_name": "Grocery List"
+}
+
+### 3. Create another list for the family
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "name": "todo",
+    "display_name": "Todo List"
+}
+
+### 4. Get all lists for the family (should show both lists now)
+GET {{baseUrl}}/{{familyName}}
+
+### 5. Get all items on the grocery list (should be empty)
+GET {{baseUrl}}/{{familyName}}/grocery
+
+### 6. Add an item to the grocery list (using string)
+POST {{baseUrl}}/{{familyName}}/grocery/milk
+
+### 7. Add another item to the grocery list (using string)
+POST {{baseUrl}}/{{familyName}}/grocery/bread
+
+### 8. Add an item to the grocery list (using string)
+POST {{baseUrl}}/{{familyName}}/grocery/eggs
+
+### 9. Get all items on the grocery list (should show 3 items)
+GET {{baseUrl}}/{{familyName}}/grocery
+
+### 10. Get available items for the grocery list
+GET {{baseUrl}}/{{familyName}}/grocery/items
+
+### 11. Add an item to the todo list
+POST {{baseUrl}}/{{familyName}}/todo/call-dentist
+
+### 12. Add another item to the todo list
+POST {{baseUrl}}/{{familyName}}/todo/buy-groceries
+
+### 13. Get all items on the todo list
+GET {{baseUrl}}/{{familyName}}/todo
+
+### 14. Get available items for the todo list
+GET {{baseUrl}}/{{familyName}}/todo/items
+
+### 15. Delete an item from grocery list (replace UUID with actual UUID from step 9)
+# Note: You'll need to copy the UUID from the response in step 9
+# DELETE {{baseUrl}}/{{familyName}}/grocery/REPLACE_WITH_ACTUAL_UUID
+
+### Example delete (uncomment and replace UUID):
+# DELETE {{baseUrl}}/{{familyName}}/grocery/39c1460c-9ccb-4348-ae6f-1bd3a64b77f4
+
+### 16. Get grocery list items after deletion
+GET {{baseUrl}}/{{familyName}}/grocery
+
+### 17. Delete the entire todo list
+DELETE {{baseUrl}}/{{familyName}}/todo
+
+### 18. Get all lists for the family (should only show grocery list)
+GET {{baseUrl}}/{{familyName}}
+
+### 19. Delete the grocery list
+DELETE {{baseUrl}}/{{familyName}}/grocery
+
+### 20. Get all lists for the family (should be empty again)
+GET {{baseUrl}}/{{familyName}}
+
+### Error Testing
+
+### 21. Try to get a non-existent family
+GET {{baseUrl}}/NonExistentFamily
+
+### 22. Try to get a non-existent list
+GET {{baseUrl}}/{{familyName}}/nonexistent
+
+### 23. Try to create a list with invalid JSON
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "invalid": "json"
+}
+
+### 24. Try to create a list without name
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "display_name": "List without name"
+}
+
+### 25. Try to delete an item with invalid UUID
+DELETE {{baseUrl}}/{{familyName}}/grocery/invalid-uuid
+
+### 26. Try to delete a non-existent item with valid UUID format
+DELETE {{baseUrl}}/{{familyName}}/grocery/550e8400-e29b-41d4-a716-446655440000
+
+### Advanced Testing
+
+### 27. Create a list and add items for UUID testing
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "name": "test-list",
+    "display_name": "Test List for UUID Operations"
+}
+
+### 28. Add item to test list
+POST {{baseUrl}}/{{familyName}}/test-list/test-item
+
+### 29. Get the test list to see the item UUID
+GET {{baseUrl}}/{{familyName}}/test-list
+
+### 30. Try to add existing item by UUID to another list
+# First create another list
+POST {{baseUrl}}/{{familyName}}
+Content-Type: application/json
+
+{
+    "name": "another-list",
+    "display_name": "Another Test List"
+}
+
+### 31. Add existing item by UUID (replace with actual UUID from step 29)
+# POST {{baseUrl}}/{{familyName}}/another-list/REPLACE_WITH_ACTUAL_UUID_FROM_STEP_29
+
+### 32. Cleanup - delete test lists
+DELETE {{baseUrl}}/{{familyName}}/test-list
+
+### 33. Delete another test list
+DELETE {{baseUrl}}/{{familyName}}/another-list
+
+### Final verification - should be empty
+GET {{baseUrl}}/{{familyName}}

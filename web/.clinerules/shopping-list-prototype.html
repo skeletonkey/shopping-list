@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery List - Smith Family</title>
+    <style>
+        /* grug css: big button, readable text, simple layout */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-button {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 20px;
+            white-space: nowrap;
+        }
+        
+        .back-button:hover {
+            background-color: #555;
+        }
+        
+        h1 {
+            flex-grow: 1;
+            text-align: center;
+            color: #333;
+            margin: 0;
+        }
+        
+        .add-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #itemInput {
+            width: 70%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        #addButton {
+            width: 25%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #addButton:hover {
+            background-color: #45a049;
+        }
+        
+        .list-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 18px;
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-text {
+            flex-grow: 1;
+        }
+        
+        .remove-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .remove-button:hover {
+            background-color: #da190b;
+        }
+        
+        .item-count {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="goBackToFamily()">← BACK TO FAMILY</button>
+        <h1>🛒 Grocery List</h1>
+    </div>
+    
+    <div class="add-section">
+        <input type="text" id="itemInput" placeholder="type new item here..." autofocus>
+        <button id="addButton">ADD</button>
+    </div>
+    
+    <div class="list-section">
+        <div id="itemList">
+            <!-- grug demo items -->
+            <div class="item">
+                <span class="item-text">milk (2 gallon)</span>
+                <button class="remove-button" onclick="removeItem(this)">✕</button>
+            </div>
+            <div class="item">
+                <span class="item-text">bread</span>
+                <button class="remove-button" onclick="removeItem(this)">✕</button>
+            </div>
+            <div class="item">
+                <span class="item-text">banana (bunch)</span>
+                <button class="remove-button" onclick="removeItem(this)">✕</button>
+            </div>
+            <div class="item">
+                <span class="item-text">chicken breast (2 lb)</span>
+                <button class="remove-button" onclick="removeItem(this)">✕</button>
+            </div>
+        </div>
+        <div class="item-count" id="itemCount">4 items on list</div>
+    </div>
+    
+    <div class="status" id="status">last updated: just now</div>
+
+    <script>
+        // grug javascript: simple and work
+        
+        let items = [
+            'milk (2 gallon)',
+            'bread', 
+            'banana (bunch)',
+            'chicken breast (2 lb)'
+        ];
+        
+        // grug focus input so family can start typing immediately
+        document.getElementById('itemInput').focus();
+        
+        // grug add item function
+        function addItem() {
+            const input = document.getElementById('itemInput');
+            const itemText = input.value.trim();
+            
+            if (itemText === '') {
+                return; // grug not add empty item
+            }
+            
+            // grug add to array
+            items.push(itemText);
+            
+            // grug clear input
+            input.value = '';
+            
+            // grug update display
+            updateList();
+            
+            // grug keep focus on input
+            input.focus();
+            
+            // grug would call api here: POST /api/items
+            console.log('grug would add item to server:', itemText);
+        }
+        
+        // grug remove item function
+        function removeItem(button) {
+            const itemDiv = button.parentElement;
+            const itemText = itemDiv.querySelector('.item-text').textContent;
+            
+            // grug remove from array
+            const index = items.indexOf(itemText);
+            if (index > -1) {
+                items.splice(index, 1);
+            }
+            
+            // grug update display
+            updateList();
+            
+            // grug would call api here: DELETE /api/items/{id}
+            console.log('grug would remove item from server:', itemText);
+        }
+        
+        // grug update list display
+        function updateList() {
+            const listDiv = document.getElementById('itemList');
+            const countDiv = document.getElementById('itemCount');
+            
+            // grug clear list
+            listDiv.innerHTML = '';
+            
+            // grug add each item
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                itemDiv.innerHTML = `
+                    <span class="item-text">${item}</span>
+                    <button class="remove-button" onclick="removeItem(this)">✕</button>
+                `;
+                listDiv.appendChild(itemDiv);
+            });
+            
+            // grug update count
+            countDiv.textContent = `${items.length} items on list`;
+            
+            // grug update status
+            document.getElementById('status').textContent = 'last updated: just now';
+        }
+        
+        // grug handle enter key
+        document.getElementById('itemInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+        
+        // grug handle add button click
+        document.getElementById('addButton').addEventListener('click', addItem);
+        
+        // grug back to family function
+        function goBackToFamily() {
+            // grug would navigate back to family page
+            console.log('grug would go back to family page');
+            
+            // in real app: window.location.href = '/smith';
+            alert('grug would go back to Smith Family Lists page');
+        }
+        
+        // grug auto-refresh every 30 seconds (would call GET /api/items)
+        setInterval(function() {
+            console.log('grug would refresh from server');
+            document.getElementById('status').textContent = 'last updated: ' + new Date().toLocaleTimeString();
+        }, 30000);
+        
+        console.log('grug shopping list ready. family can start typing.');
+    </script>
+</body>
+</html>

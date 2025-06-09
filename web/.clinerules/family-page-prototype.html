@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smith Family Lists</title>
+    <style>
+        /* grug css: big button, readable text, simple layout */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .create-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #listInput {
+            width: 70%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        #createButton {
+            width: 25%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #createButton:hover {
+            background-color: #1976D2;
+        }
+        
+        .lists-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .list-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
+        .list-emoji {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .list-details {
+            flex-grow: 1;
+        }
+        
+        .list-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .list-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .list-arrow {
+            font-size: 24px;
+            color: #999;
+        }
+        
+        .lists-count {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Smith Family Lists</h1>
+    
+    <div class="create-section">
+        <input type="text" id="listInput" placeholder="new list name..." autofocus>
+        <button id="createButton">CREATE LIST</button>
+    </div>
+    
+    <div class="lists-section">
+        <div id="listContainer">
+            <!-- grug demo lists -->
+            <div class="list-item" onclick="openList('grocery')">
+                <div class="list-info">
+                    <span class="list-emoji">🛒</span>
+                    <div class="list-details">
+                        <div class="list-name">Grocery</div>
+                        <div class="list-count">5 items</div>
+                    </div>
+                </div>
+                <span class="list-arrow">→</span>
+            </div>
+            
+            <div class="list-item" onclick="openList('hardware')">
+                <div class="list-info">
+                    <span class="list-emoji">🔨</span>
+                    <div class="list-details">
+                        <div class="list-name">Hardware</div>
+                        <div class="list-count">2 items</div>
+                    </div>
+                </div>
+                <span class="list-arrow">→</span>
+            </div>
+            
+            <div class="list-item" onclick="openList('christmas')">
+                <div class="list-info">
+                    <span class="list-emoji">🎄</span>
+                    <div class="list-details">
+                        <div class="list-name">Christmas</div>
+                        <div class="list-count">12 items</div>
+                    </div>
+                </div>
+                <span class="list-arrow">→</span>
+            </div>
+        </div>
+        <div class="lists-count" id="listsCount">3 lists total</div>
+    </div>
+    
+    <div class="status" id="status">last updated: just now</div>
+
+    <script>
+        // grug javascript: simple and work
+        
+        let lists = [
+            { name: 'Grocery', emoji: '🛒', count: 5, slug: 'grocery' },
+            { name: 'Hardware', emoji: '🔨', count: 2, slug: 'hardware' },
+            { name: 'Christmas', emoji: '🎄', count: 12, slug: 'christmas' }
+        ];
+        
+        // grug focus input so family can start typing immediately
+        document.getElementById('listInput').focus();
+        
+        // grug create list function
+        function createList() {
+            const input = document.getElementById('listInput');
+            const listName = input.value.trim();
+            
+            if (listName === '') {
+                return; // grug not create empty list
+            }
+            
+            // grug make slug from name (simple way)
+            const slug = listName.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '') // remove special chars
+                .replace(/\s+/g, '-'); // spaces to dashes
+            
+            // grug pick emoji (simple logic)
+            let emoji = '📝'; // default
+            if (listName.toLowerCase().includes('grocery') || listName.toLowerCase().includes('food')) emoji = '🛒';
+            if (listName.toLowerCase().includes('hardware') || listName.toLowerCase().includes('tool')) emoji = '🔨';
+            if (listName.toLowerCase().includes('christmas') || listName.toLowerCase().includes('gift')) emoji = '🎄';
+            if (listName.toLowerCase().includes('birthday')) emoji = '🎂';
+            if (listName.toLowerCase().includes('vacation') || listName.toLowerCase().includes('travel')) emoji = '✈️';
+            
+            // grug add to array
+            lists.push({
+                name: listName,
+                emoji: emoji,
+                count: 0,
+                slug: slug
+            });
+            
+            // grug clear input
+            input.value = '';
+            
+            // grug update display
+            updateLists();
+            
+            // grug keep focus on input
+            input.focus();
+            
+            // grug would call api here: POST /api/smith/lists
+            console.log('grug would create list on server:', listName, slug);
+        }
+        
+        // grug open list function
+        function openList(slug) {
+            // grug would navigate to list page
+            console.log('grug would open list:', slug);
+            
+            // in real app: window.location.href = `/smith/${slug}`;
+            alert(`grug would open ${slug} list page`);
+        }
+        
+        // grug update lists display
+        function updateLists() {
+            const container = document.getElementById('listContainer');
+            const countDiv = document.getElementById('listsCount');
+            
+            // grug clear container
+            container.innerHTML = '';
+            
+            // grug add each list
+            lists.forEach(list => {
+                const listDiv = document.createElement('div');
+                listDiv.className = 'list-item';
+                listDiv.onclick = () => openList(list.slug);
+                listDiv.innerHTML = `
+                    <div class="list-info">
+                        <span class="list-emoji">${list.emoji}</span>
+                        <div class="list-details">
+                            <div class="list-name">${list.name}</div>
+                            <div class="list-count">${list.count} items</div>
+                        </div>
+                    </div>
+                    <span class="list-arrow">→</span>
+                `;
+                container.appendChild(listDiv);
+            });
+            
+            // grug update count
+            countDiv.textContent = `${lists.length} lists total`;
+            
+            // grug update status
+            document.getElementById('status').textContent = 'last updated: just now';
+        }
+        
+        // grug handle enter key
+        document.getElementById('listInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                createList();
+            }
+        });
+        
+        // grug handle create button click
+        document.getElementById('createButton').addEventListener('click', createList);
+        
+        // grug auto-refresh every 30 seconds (would call GET /api/smith/lists)
+        setInterval(function() {
+            console.log('grug would refresh lists from server');
+            document.getElementById('status').textContent = 'last updated: ' + new Date().toLocaleTimeString();
+        }, 30000);
+        
+        console.log('grug family page ready. family can create new list.');
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -12,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/skeletonkey/lib-core-go/logger"
 	"github.com/skeletonkey/shopping-list/api/app/db"
+)
+
+const (
+dbReadTimeout = 1 * time.Microsecond
+	dbWriteTimeout = 5 * time.Second
 )
 
 var (
@@ -102,12 +108,59 @@ func getFamilyLists(c echo.Context) error {
 	familyName := c.Param("family_name")
 	log.Trace().Str("family_name", familyName).Msg("getFamilyLists called")
 
+	ctx, cancel := context.WithTimeout(c.Request().Context(), dbReadTimeout)
+	defer cancel()
+
 	// Get family by name
-	family, err := db.GetFamilyByName(c.Request().Context(), familyName)
+	family, err := db.GetFamilyByName(ctx, familyName)
 	if err != nil {
+		// Check for context cancellation errors
+		if errors.Is(err, context.Canceled) {
+			// Check which context was canceled
+			select {
+			case <-c.Request().Context().Done():
+				// Parent context (request) was canceled
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Request context canceled")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Request canceled")
+			case <-ctx.Done():
+				// Child context (timeout) was canceled
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation timed out")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
+			default:
+				// Some other cancellation
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Context canceled")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
+			}
+		}
+		
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded")
+			return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
+		}
+
 		// Try to find by name if UUID lookup fails
-		families, err := db.GetAllFamilies(c.Request().Context())
+		families, err := db.GetAllFamilies(ctx)
 		if err != nil {
+			// Check for context cancellation errors again
+			if errors.Is(err, context.Canceled) {
+				select {
+				case <-c.Request().Context().Done():
+					log.Warn().Err(err).Str("family_name", familyName).Msg("Request context canceled during fallback")
+					return echo.NewHTTPError(http.StatusRequestTimeout, "Request canceled")
+				case <-ctx.Done():
+					log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation timed out during fallback")
+					return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
+				default:
+					log.Warn().Err(err).Str("family_name", familyName).Msg("Context canceled during fallback")
+					return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
+				}
+			}
+			
+			if errors.Is(err, context.DeadlineExceeded) {
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded during fallback")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
+			}
+			
 			log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get families")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}
@@ -127,7 +180,7 @@ func getFamilyLists(c echo.Context) error {
 	}
 
 	// Get lists for family
-	lists, err := db.GetListsByFamilyID(c.Request().Context(), family.ID)
+	lists, err := db.GetListsByFamilyID(ctx, family.ID)
 	if err != nil {
 		log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get lists")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get lists")

@@ -127,11 +127,6 @@ func getFamilyLists(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation canceled or timed out")
 			}
 
-			if errors.Is(err, context.DeadlineExceeded) {
-				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded during fallback")
-				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
-			}
-
 			log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get families")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}

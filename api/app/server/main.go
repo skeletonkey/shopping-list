@@ -16,7 +16,7 @@ import (
 )
 
 const (
-dbReadTimeout = 5 * time.Second
+	dbReadTimeout  = 5 * time.Second
 	dbWriteTimeout = 5 * time.Second
 )
 
@@ -132,7 +132,7 @@ func getFamilyLists(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
 			}
 		}
-		
+
 		if errors.Is(err, context.DeadlineExceeded) {
 			log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded")
 			return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
@@ -155,12 +155,12 @@ func getFamilyLists(c echo.Context) error {
 					return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
 				}
 			}
-			
+
 			if errors.Is(err, context.DeadlineExceeded) {
 				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded during fallback")
 				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
 			}
-			
+
 			log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get families")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}

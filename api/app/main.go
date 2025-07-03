@@ -16,7 +16,7 @@ import (
 
 const (
 	shutdownDelay = 5 * time.Second
-	version	   = "0.0.1"
+	version       = "0.0.1"
 )
 
 func main() {

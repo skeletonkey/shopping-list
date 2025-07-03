@@ -9,8 +9,7 @@ The application creates three main tables:
 ### Family Table
 
 - `id` - Primary key (auto-increment)
-- `uuid` - Unique identifier for external use
-- `name` - Family name
+- `name` - Family name (unique)
 - `display_name` - Optional display name
 
 ### List Table
@@ -84,5 +83,12 @@ Database configuration is managed through the config file (`config/dev.json`):
 {
   "db": {
     "location": "database/dev.db"
+     "family": [
+        {
+          "name": "Name",
+          "display_name": "The Family Display Name"
+        }
+     ]
   }
 }
+```

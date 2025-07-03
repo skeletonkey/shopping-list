@@ -16,13 +16,14 @@ import (
 
 const (
 	shutdownDelay = 5 * time.Second
+	version       = "0.0.1"
 )
 
 func main() {
 	wg := new(sync.WaitGroup)
 
 	log := logger.Get()
-	log.Info().Msg("Service starting up")
+	log.Info().Str("Version", version).Msg("Service starting up")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -12,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/skeletonkey/lib-core-go/logger"
 	"github.com/skeletonkey/shopping-list/api/app/db"
+)
+
+const (
+	dbReadTimeout  = 5 * time.Second
+	dbWriteTimeout = 5 * time.Second
 )
 
 var (
@@ -102,12 +108,25 @@ func getFamilyLists(c echo.Context) error {
 	familyName := c.Param("family_name")
 	log.Trace().Str("family_name", familyName).Msg("getFamilyLists called")
 
+	ctx, cancel := context.WithTimeout(c.Request().Context(), dbReadTimeout)
+	defer cancel()
+
 	// Get family by name
-	family, err := db.GetFamilyByName(c.Request().Context(), familyName)
+	family, err := db.GetFamilyByName(ctx, familyName)
 	if err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation canceled or deadline exceeded")
+			return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation canceled or timed out")
+		}
+
 		// Try to find by name if UUID lookup fails
-		families, err := db.GetAllFamilies(c.Request().Context())
+		families, err := db.GetAllFamilies(ctx)
 		if err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation canceled or deadline exceeded")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation canceled or timed out")
+			}
+
 			log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get families")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}
@@ -127,7 +146,7 @@ func getFamilyLists(c echo.Context) error {
 	}
 
 	// Get lists for family
-	lists, err := db.GetListsByFamilyID(c.Request().Context(), family.ID)
+	lists, err := db.GetListsByFamilyID(ctx, family.ID)
 	if err != nil {
 		log.Error().Err(err).Str("family_name", familyName).Msg("Failed to get lists")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get lists")

@@ -41,7 +41,7 @@ func New(ctx context.Context, wg *sync.WaitGroup) (err error) {
 	if err != nil {
 		dbConn.Close()
 		dbConn = nil
-		return fmt.Errorf("failed to ping database: %s", err)
+		return fmt.Errorf("failed to ping database (%s): %s", cfg.DbFile, err)
 	}
 
 	// Enable foreign key constraints

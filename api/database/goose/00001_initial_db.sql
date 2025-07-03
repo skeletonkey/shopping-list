@@ -26,6 +26,21 @@ CREATE TABLE item (
     UNIQUE(item, list_id)
 );
 
+-- Create trigger to enforce that list_id must be 0 (global items) or exist in list table
+CREATE TRIGGER item_list_id_check
+    BEFORE INSERT ON item
+    WHEN NEW.list_id != 0 AND NEW.list_id NOT IN (SELECT id FROM list)
+BEGIN
+    SELECT RAISE(ABORT, 'list_id must be 0 or exist in list table');
+END;
+
+CREATE TRIGGER item_list_id_check_update
+    BEFORE UPDATE ON item
+    WHEN NEW.list_id != 0 AND NEW.list_id NOT IN (SELECT id FROM list)
+BEGIN
+    SELECT RAISE(ABORT, 'list_id must be 0 or exist in list table');
+END;
+
 -- Create indexes for better performance
 CREATE INDEX idx_list_uuid ON list(uuid);
 CREATE INDEX idx_list_family_id ON list(family_id);

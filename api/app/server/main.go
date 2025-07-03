@@ -114,46 +114,17 @@ func getFamilyLists(c echo.Context) error {
 	// Get family by name
 	family, err := db.GetFamilyByName(ctx, familyName)
 	if err != nil {
-		// Check for context cancellation errors
-		if errors.Is(err, context.Canceled) {
-			// Check which context was canceled
-			select {
-			case <-c.Request().Context().Done():
-				// Parent context (request) was canceled
-				log.Warn().Err(err).Str("family_name", familyName).Msg("Request context canceled")
-				return echo.NewHTTPError(http.StatusRequestTimeout, "Request canceled")
-			case <-ctx.Done():
-				// Child context (timeout) was canceled
-				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation timed out")
-				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
-			default:
-				// Some other cancellation
-				log.Warn().Err(err).Str("family_name", familyName).Msg("Context canceled")
-				return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
-			}
-		}
-
-		if errors.Is(err, context.DeadlineExceeded) {
-			log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation deadline exceeded")
-			return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation canceled or deadline exceeded")
+			return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation canceled or timed out")
 		}
 
 		// Try to find by name if UUID lookup fails
 		families, err := db.GetAllFamilies(ctx)
 		if err != nil {
-			// Check for context cancellation errors again
-			if errors.Is(err, context.Canceled) {
-				select {
-				case <-c.Request().Context().Done():
-					log.Warn().Err(err).Str("family_name", familyName).Msg("Request context canceled during fallback")
-					return echo.NewHTTPError(http.StatusRequestTimeout, "Request canceled")
-				case <-ctx.Done():
-					log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation timed out during fallback")
-					return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation timed out")
-				default:
-					log.Warn().Err(err).Str("family_name", familyName).Msg("Context canceled during fallback")
-					return echo.NewHTTPError(http.StatusRequestTimeout, "Operation canceled")
-				}
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				log.Warn().Err(err).Str("family_name", familyName).Msg("Database operation canceled or deadline exceeded")
+				return echo.NewHTTPError(http.StatusRequestTimeout, "Database operation canceled or timed out")
 			}
 
 			if errors.Is(err, context.DeadlineExceeded) {

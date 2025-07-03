@@ -17,7 +17,7 @@ func (f *Family) create() error {
 		return fmt.Errorf("ID (%d) can not be provided to family create", f.ID)
 	}
 	if f.Name == "" {
-		return fmt.Errorf("Name must be provided to create a family")
+		return fmt.Errorf("name must be provided to create a family")
 	}
 
 	if f.DisplayName == "" {
@@ -50,22 +50,6 @@ func (f *Family) update() error {
 	return nil
 }
 
-// getFamilyByID retrieves a family by ID
-func getFamilyByID(id int) (Family, error) {
-	query := `SELECT name, display_name FROM family WHERE id = ?`
-	row := dbConn.QueryRow(query, id)
-
-	family := &Family{ID: id}
-	if err := row.Scan(&family.Name, &family.DisplayName); err != nil {
-		if err == sql.ErrNoRows {
-			return *family, fmt.Errorf("family not found by id")
-		}
-		return *family, fmt.Errorf("failed to get family by id: %s", err)
-	}
-
-	return *family, nil
-}
-
 // getFamilyByName retrieves a family by ID
 func getFamilyByName(name string) (Family, error) {
 	query := `SELECT id, display_name FROM family WHERE name = ?`
@@ -81,35 +65,4 @@ func getFamilyByName(name string) (Family, error) {
 	}
 
 	return *family, nil
-}
-
-// validate ensure the validity of a family entry
-// if an ID is provide then it must match what is in the database
-// if ID is not provided then Name must be provided and exist in the DB
-func (f *Family) validate() (err error) {
-	var existingFamily Family
-	if f.ID != 0 {
-		existingFamily, err = getFamilyByID(f.ID)
-		if err != nil {
-			return fmt.Errorf("failed to validate existing family by ID (%d): %s", f.ID, err)
-		}
-	} else if f.Name != "" {
-		existingFamily, _ = getFamilyByName(f.Name)
-		if existingFamily.ID == 0 {
-			return fmt.Errorf("Name (%s) already exist", f.Name)
-		}
-	}
-	if existingFamily.ID != 0 {
-		if existingFamily.ID != f.ID {
-			return fmt.Errorf("provided ID (%d) does not match db ID (%d)", f.ID, existingFamily.ID)
-		}
-
-		return nil
-	}
-
-	if f.Name == "" {
-		return fmt.Errorf("Name must be provided")
-	}
-
-	return nil
 }

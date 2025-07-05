@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 )
 
@@ -48,21 +47,4 @@ func (f *Family) update() error {
 	}
 
 	return nil
-}
-
-// getFamilyByName retrieves a family by ID
-func getFamilyByName(name string) (Family, error) {
-	query := `SELECT id, display_name FROM family WHERE name = ?`
-	row := dbConn.QueryRow(query, name)
-
-	family := &Family{Name: name}
-	if err := row.Scan(&family.ID, &family.DisplayName); err != nil {
-		if err == sql.ErrNoRows {
-			return *family, fmt.Errorf("family not found by name")
-		}
-
-		return *family, fmt.Errorf("failed to get family by name: %s", err)
-	}
-
-	return *family, nil
 }

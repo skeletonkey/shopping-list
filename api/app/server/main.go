@@ -131,7 +131,7 @@ func getFamilyLists(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}
 
-		var foundFamily *db.Family
+		var foundFamily db.Family
 		for _, f := range families {
 			if f.Name == familyName {
 				foundFamily = f
@@ -139,7 +139,7 @@ func getFamilyLists(c echo.Context) error {
 			}
 		}
 
-		if foundFamily == nil {
+		if foundFamily.Name == "" {
 			return echo.NewHTTPError(http.StatusNotFound, "Family not found")
 		}
 		family = foundFamily
@@ -192,7 +192,7 @@ func createList(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}
 
-		var foundFamily *db.Family
+		var foundFamily db.Family
 		for _, f := range families {
 			if f.Name == familyName {
 				foundFamily = f
@@ -200,7 +200,7 @@ func createList(c echo.Context) error {
 			}
 		}
 
-		if foundFamily == nil {
+		if foundFamily.Name == "" {
 			return echo.NewHTTPError(http.StatusNotFound, "Family not found")
 		}
 		family = foundFamily
@@ -413,7 +413,7 @@ func getListByFamilyAndListName(ctx context.Context, familyName, listName string
 			return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to get families")
 		}
 
-		var foundFamily *db.Family
+		var foundFamily db.Family
 		for _, f := range families {
 			if f.Name == familyName {
 				foundFamily = f
@@ -421,7 +421,7 @@ func getListByFamilyAndListName(ctx context.Context, familyName, listName string
 			}
 		}
 
-		if foundFamily == nil {
+		if foundFamily.Name == "" {
 			return nil, echo.NewHTTPError(http.StatusNotFound, "Family not found")
 		}
 		family = foundFamily

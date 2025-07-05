@@ -73,25 +73,25 @@ func New(ctx context.Context, wg *sync.WaitGroup) (err error) {
 }
 
 // GetFamilyByName retrieves a family by UUID
-func GetFamilyByName(ctx context.Context, name string) (*Family, error) {
+func GetFamilyByName(ctx context.Context, name string) (Family, error) {
 	query := `SELECT id, display_name FROM family WHERE name = ?`
 	readCtx, readCancel := context.WithTimeout(ctx, readTimeout)
 	defer readCancel()
 	row := dbConn.QueryRowContext(readCtx, query, name)
 
-	family := &Family{Name: name}
+	family := Family{Name: name}
 	if err := row.Scan(&family.ID, &family.DisplayName); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("family (%s) not found", name)
+			return family, fmt.Errorf("family (%s) not found", name)
 		}
-		return nil, fmt.Errorf("failed to get family by name (%s): %s", name, err)
+		return family, fmt.Errorf("failed to get family by name (%s): %s", name, err)
 	}
 
 	return family, nil
 }
 
 // GetAllFamilies retrieves all families
-func GetAllFamilies(ctx context.Context) ([]*Family, error) {
+func GetAllFamilies(ctx context.Context) ([]Family, error) {
 	query := `SELECT id, name, display_name FROM family ORDER BY name`
 	readCtx, readCancel := context.WithTimeout(ctx, readTimeout)
 	defer readCancel()
@@ -101,9 +101,9 @@ func GetAllFamilies(ctx context.Context) ([]*Family, error) {
 	}
 	defer rows.Close()
 
-	var families []*Family
+	var families []Family
 	for rows.Next() {
-		family := &Family{}
+		family := Family{}
 		err := rows.Scan(&family.ID, &family.Name, &family.DisplayName)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan family: %w", err)

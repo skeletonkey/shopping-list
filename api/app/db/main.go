@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/skeletonkey/lib-core-go/config"
 	"github.com/skeletonkey/lib-core-go/logger"
 )
 
@@ -68,6 +69,8 @@ func New(ctx context.Context, wg *sync.WaitGroup) (err error) {
 			}
 		}
 	})
+
+	config.RegisterInitializer("db", dbCfg)
 
 	return err
 }

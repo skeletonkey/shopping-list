@@ -57,7 +57,7 @@ familyFromConfig:
 					log.Error().Err(err).Msg("updating family")
 					continue familyFromConfig
 				}
-				log.Info().Int("id", cfgFamily.ID).Str("display name", existingFamilyInfo.DisplayName).Msg("update family")
+				log.Info().Int("id", existingFamilyInfo.ID).Str("display name", existingFamilyInfo.DisplayName).Msg("update family")
 			}
 			continue familyFromConfig
 		}

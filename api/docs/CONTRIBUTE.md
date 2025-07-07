@@ -102,7 +102,7 @@ Brief description of the changes
 
 ### Database Changes
 
-See [DATABASE.md](docs/DATABSE.md) in this directory
+See [DATABASE.md](docs/DATABSAE.md) in this directory
 
 - Use Goose migrations for all database changes
 - Include both up and down migrations
